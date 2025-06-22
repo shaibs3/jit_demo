@@ -1,0 +1,6 @@
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.csproj.AssemblyReference.cache
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.AssemblyInfoInputs.cache
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.AssemblyInfo.cs
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.csproj.CoreCompileInputs.cache
+/Users/sbenshalom/jit/Jit-ai-challenge/obj/Debug/net8.0/DockerWrapperTool.sourcelink.json
