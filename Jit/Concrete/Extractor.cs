@@ -2,15 +2,19 @@ using Interfaces;
 
 namespace Concrete
 {
+    using System.Security;
+
     public class Extractor : IExtractor
     {
         private readonly IReadmeExtractor _readmeExtractor;
         private readonly ILlm _llmClient;
+        private readonly IInputSanitizer _sanitizer;
 
-        public Extractor(IReadmeExtractor readmeExtractor, ILlm llmClient)
+        public Extractor(IReadmeExtractor readmeExtractor, ILlm llmClient, IInputSanitizer sanitizer)
         {
             _readmeExtractor = readmeExtractor;
             _llmClient = llmClient;
+            _sanitizer = sanitizer;
         }
 
         public async Task<(string exampleInput, string expectedOutput)> ExtractTestDataAsync(
@@ -18,16 +22,70 @@ namespace Concrete
             string scriptContent, 
             string scriptFileName)
         {
+            // Sanitize script content first
+            var scriptSanitization = _sanitizer.SanitizeScriptContent(scriptContent, scriptFileName);
+            if (!scriptSanitization.IsValid)
+            {
+                Console.WriteLine("⚠️ Security warning: Script content contains potential threats:");
+                foreach (var threat in scriptSanitization.DetectedThreats)
+                {
+                    Console.WriteLine($"   - {threat}");
+                }
+                foreach (var warning in scriptSanitization.Warnings)
+                {
+                    Console.WriteLine($"   - {warning}");
+                }
+                
+                var recommendations = _sanitizer.GetSecurityRecommendations(scriptSanitization);
+                foreach (var recommendation in recommendations)
+                {
+                    Console.WriteLine($"   💡 {recommendation}");
+                }
+                
+                throw new SecurityException("Script content failed security validation");
+            }
+
+            // Use sanitized script content
+            var sanitizedScriptContent = scriptSanitization.SanitizedInput;
+
             try
             {
                 // First attempt: extract from README
                 var (exampleInput, expectedOutput) = await _readmeExtractor.ExtractExampleAsync(readmePath);
 
+                // Sanitize extracted test data
+                var testDataSanitization = _sanitizer.SanitizeTestData(exampleInput, expectedOutput);
+                if (!testDataSanitization.IsValid)
+                {
+                    Console.WriteLine("⚠️ Security warning: Extracted test data contains potential threats:");
+                    foreach (var threat in testDataSanitization.DetectedThreats)
+                    {
+                        Console.WriteLine($"   - {threat}");
+                    }
+                    
+                    // Check if it's likely a prompt injection attempt
+                    if (_sanitizer.IsLikelyPromptInjection(exampleInput) || _sanitizer.IsLikelyPromptInjection(expectedOutput))
+                    {
+                        Console.WriteLine("🚨 High probability of prompt injection attempt detected!");
+                        throw new SecurityException("Prompt injection attempt detected in test data");
+                    }
+                    
+                    // For warnings, continue but log them
+                    foreach (var warning in testDataSanitization.Warnings)
+                    {
+                        Console.WriteLine($"   - {warning}");
+                    }
+                }
+
+                // Use sanitized test data
+                exampleInput = testDataSanitization.SanitizedInput;
+                expectedOutput = testDataSanitization.SanitizedExpectedOutput;
+
                 Console.WriteLine("Example input extracted from README: " + exampleInput);
                 Console.WriteLine("Expected output extracted from README: " + expectedOutput);
 
                 // Validate the extracted data
-                bool isValid = await _llmClient.ValidateExtractedExample(scriptContent, scriptFileName, exampleInput, expectedOutput);
+                bool isValid = await _llmClient.ValidateExtractedExample(sanitizedScriptContent, scriptFileName, exampleInput, expectedOutput);
 
                 if (isValid)
                 {
@@ -37,14 +95,14 @@ namespace Concrete
                 else
                 {
                     Console.WriteLine("❌ README extraction validation failed, trying fallback generation...");
-                    return await GenerateFallbackTestDataAsync(scriptContent, scriptFileName);
+                    return await GenerateFallbackTestDataAsync(sanitizedScriptContent, scriptFileName);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ README extraction failed: {ex.Message}");
                 Console.WriteLine("🔄 Attempting fallback test data generation...");
-                return await GenerateFallbackTestDataAsync(scriptContent, scriptFileName);
+                return await GenerateFallbackTestDataAsync(sanitizedScriptContent, scriptFileName);
             }
         }
 
@@ -55,6 +113,27 @@ namespace Concrete
             try
             {
                 var (exampleInput, expectedOutput) = await _llmClient.GenerateFallbackTestData(scriptContent, scriptFileName);
+
+                // Sanitize fallback test data
+                var testDataSanitization = _sanitizer.SanitizeTestData(exampleInput, expectedOutput);
+                if (!testDataSanitization.IsValid)
+                {
+                    Console.WriteLine("⚠️ Security warning: Fallback test data contains potential threats:");
+                    foreach (var threat in testDataSanitization.DetectedThreats)
+                    {
+                        Console.WriteLine($"   - {threat}");
+                    }
+                    
+                    if (_sanitizer.IsLikelyPromptInjection(exampleInput) || _sanitizer.IsLikelyPromptInjection(expectedOutput))
+                    {
+                        Console.WriteLine("🚨 High probability of prompt injection attempt detected in fallback data!");
+                        throw new SecurityException("Prompt injection attempt detected in fallback test data");
+                    }
+                }
+
+                // Use sanitized data
+                exampleInput = testDataSanitization.SanitizedInput;
+                expectedOutput = testDataSanitization.SanitizedExpectedOutput;
 
                 Console.WriteLine("✅ Fallback test data generated successfully");
                 return (exampleInput, expectedOutput);
@@ -89,6 +168,27 @@ namespace Concrete
             {
                 throw new InvalidOperationException("Manual test data cannot be empty");
             }
+
+            // Sanitize manual input
+            var testDataSanitization = _sanitizer.SanitizeTestData(exampleInput, expectedOutput);
+            if (!testDataSanitization.IsValid)
+            {
+                Console.WriteLine("⚠️ Security warning: Manual test data contains potential threats:");
+                foreach (var threat in testDataSanitization.DetectedThreats)
+                {
+                    Console.WriteLine($"   - {threat}");
+                }
+                
+                if (_sanitizer.IsLikelyPromptInjection(exampleInput) || _sanitizer.IsLikelyPromptInjection(expectedOutput))
+                {
+                    Console.WriteLine("🚨 High probability of prompt injection attempt detected in manual input!");
+                    throw new SecurityException("Prompt injection attempt detected in manual test data");
+                }
+            }
+
+            // Use sanitized data
+            exampleInput = testDataSanitization.SanitizedInput;
+            expectedOutput = testDataSanitization.SanitizedExpectedOutput;
 
             Console.WriteLine("✅ Manual test data accepted");
             return (exampleInput, expectedOutput);

@@ -10,13 +10,15 @@ namespace Jit.Tests
         private Mock<IReadmeExtractor> _mockReadmeExtractor;
         private Mock<ILlm> _mockLlmClient;
         private Extractor _extractor;
+        private Mock<IInputSanitizer> _mockSanitizer;
 
         [TestInitialize]
         public void Setup()
         {
             _mockReadmeExtractor = new Mock<IReadmeExtractor>();
             _mockLlmClient = new Mock<ILlm>();
-            _extractor = new Extractor(_mockReadmeExtractor.Object, _mockLlmClient.Object);
+            _mockSanitizer = new Mock<IInputSanitizer>();
+            _extractor = new Extractor(_mockReadmeExtractor.Object, _mockLlmClient.Object, _mockSanitizer.Object);
         }
 
         [TestMethod]
@@ -124,8 +126,7 @@ namespace Jit.Tests
                 .ThrowsAsync(new Exception("LLM generation failed"));
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _extractor.ExtractTestDataAsync(readmePath, scriptContent, scriptFileName));
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _extractor.ExtractTestDataAsync(readmePath, scriptContent, scriptFileName));
         }
     }
-} 
+}

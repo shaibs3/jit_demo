@@ -28,7 +28,7 @@ namespace Program
             var (scriptContent, scriptFileName) = await ReadScriptFile(scriptPath);
 
             // Initialize services
-            var (llmClient, _, dockerService, extractor, validator) = InitializeServices();
+            var (llmClient, _, dockerService, extractor, validator, sanitizer) = InitializeServices();
 
             // Extract test data from README
             var (exampleInput, expectedOutput) = await extractor.ExtractTestDataAsync(readmePath, scriptContent, scriptFileName);
@@ -71,15 +71,16 @@ namespace Program
             return (scriptContent, scriptFileName);
         }
 
-        static (OpenAiClient openAiClient, ReadmeExtractor readmeExtractor, DockerService dockerService, Extractor extractor, Validator validator) InitializeServices()
+        static (OpenAiClient openAiClient, ReadmeExtractor readmeExtractor, DockerService dockerService, Extractor extractor, Validator validator, InputSanitizer sanitizer) InitializeServices()
         {
             OpenAiClient openAiClient = new OpenAiClient();
             ReadmeExtractor readmeExtractor = new ReadmeExtractor(openAiClient);
             DockerService dockerService = new DockerService();
-            Extractor extractor = new Extractor(readmeExtractor, openAiClient);
+            InputSanitizer sanitizer = new InputSanitizer();
+            Extractor extractor = new Extractor(readmeExtractor, openAiClient, sanitizer);
             Validator validator = new Validator(openAiClient);
 
-            return (openAiClient, readmeExtractor, dockerService, extractor, validator);
+            return (openAiClient, readmeExtractor, dockerService, extractor, validator, sanitizer);
         }
     }
 }

@@ -79,24 +79,41 @@ Focus on the specific error mentioned in the build output.
             }
 
             var readmeContent = await File.ReadAllTextAsync(readmePath);
-            
+            Console.WriteLine("shaiiiiii " + readmeContent);
             var prompt = $@"
-You are an expert at analyzing README files and extracting test examples.
+You are an expert at analyzing README files and extracting EXISTING test examples.
 
-Please analyze this README content and extract:
-1. An example input that can be used to test the script
-2. The expected output for that input
-3. A confidence score (0-100) indicating how certain you are about the extraction
+IMPORTANT: You must ONLY extract examples that are ALREADY PRESENT in the README content. Do NOT generate or create new examples.
+
+Please analyze this README content and look for:
+1. EXISTING example inputs that are shown in the README
+2. EXISTING expected outputs that correspond to those inputs
+3. A confidence score (0-100) indicating how certain you are that these examples actually exist in the README
+
+Look for patterns like:
+- ""Example: input → output""
+- ""Usage: command"" followed by expected output
+- Code blocks showing input/output pairs
+- Test cases or examples sections
+- Command line examples with expected results
 
 README content:
 {readmeContent}
 
-Please respond with only a JSON object in this exact format:
+If you find existing examples in the README, respond with a JSON object in this exact format:
 {{
-  ""exampleInput"": ""the input string"",
-  ""expectedOutput"": ""the expected output string"",
+  ""exampleInput"": ""the EXISTING input from the README"",
+  ""expectedOutput"": ""the EXISTING expected output from the README"",
   ""confidence"": 85,
-  ""reasoning"": ""brief explanation of why this input/output was chosen""
+  ""reasoning"": ""brief explanation of where in the README you found this example""
+}}
+
+If you cannot find any existing examples in the README, respond with:
+{{
+  ""exampleInput"": """",
+  ""expectedOutput"": """",
+  ""confidence"": 0,
+  ""reasoning"": ""No existing examples found in the README content""
 }}
 
 Do not include any explanations or markdown formatting outside the JSON.
@@ -111,6 +128,13 @@ Do not include any explanations or markdown formatting outside the JSON.
             string? expectedOutput = root.GetProperty("expectedOutput").GetString();
             int confidence = root.GetProperty("confidence").GetInt32();
             string? reasoning = root.GetProperty("reasoning").GetString();
+            
+            // Check if no examples were found
+            if (string.IsNullOrEmpty(exampleInput) || string.IsNullOrEmpty(expectedOutput) || confidence == 0)
+            {
+                Console.WriteLine($"📋 No existing examples found in README: {reasoning}");
+                throw new InvalidOperationException($"No existing test examples found in README: {reasoning}");
+            }
             
             if (string.IsNullOrEmpty(exampleInput) || string.IsNullOrEmpty(expectedOutput))
                 throw new InvalidOperationException("Failed to extract valid example input and output from README");
