@@ -229,8 +229,8 @@ namespace Concrete
 
         public SanitizationResult SanitizeTestData(string input, string expectedOutput)
         {
-            var inputResult = SanitizeInput(input);
-            var outputResult = SanitizeInput(expectedOutput);
+            var inputResult = SanitizeInputForTestData(input);
+            var outputResult = SanitizeInputForTestData(expectedOutput);
 
             var combinedResult = new SanitizationResult
             {
@@ -247,6 +247,103 @@ namespace Concrete
             combinedResult.DetectedThreats.AddRange(outputResult.DetectedThreats);
 
             return combinedResult;
+        }
+
+        private SanitizationResult SanitizeInputForTestData(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return new SanitizationResult
+                {
+                    IsValid = false,
+                    SanitizedInput = "",
+                    Warnings = new List<string> { "Input cannot be empty" },
+                    DetectedThreats = new List<string> { "Empty input" }
+                };
+            }
+
+            var warnings = new List<string>();
+            var detectedThreats = new List<string>();
+            var sanitizedInput = input;
+
+            // Check input length
+            if (input.Length > _maxInputLength)
+            {
+                warnings.Add($"Input length ({input.Length}) exceeds maximum allowed length ({_maxInputLength})");
+                sanitizedInput = input.Substring(0, _maxInputLength);
+            }
+
+            // Check for suspicious patterns (prompt injection)
+            foreach (var pattern in _suspiciousPatterns)
+            {
+                if (Regex.IsMatch(sanitizedInput, pattern))
+                {
+                    detectedThreats.Add($"Potential prompt injection detected: {pattern}");
+                    warnings.Add($"Suspicious pattern detected: {pattern}");
+                }
+            }
+
+            // Check for dangerous commands
+            foreach (var command in _dangerousCommands)
+            {
+                if (sanitizedInput.Contains(command, StringComparison.OrdinalIgnoreCase))
+                {
+                    detectedThreats.Add($"Dangerous command detected: {command}");
+                    warnings.Add($"Dangerous command found: {command}");
+                }
+            }
+
+            // Check for script injection patterns
+            var scriptPatterns = new[]
+            {
+                @"<script[^>]*>.*?</script>",
+                @"javascript:",
+                @"on\w+\s*=",
+                @"vbscript:",
+                @"data:text/html",
+                @"data:application/x-javascript"
+            };
+
+            foreach (var pattern in scriptPatterns)
+            {
+                if (Regex.IsMatch(sanitizedInput, pattern, RegexOptions.IgnoreCase))
+                {
+                    detectedThreats.Add($"Script injection pattern detected: {pattern}");
+                    warnings.Add($"Script injection pattern found: {pattern}");
+                }
+            }
+
+            // For test data, we use a less aggressive sanitization that preserves quotes and ampersands
+            // but still removes dangerous control characters
+            sanitizedInput = SanitizeTestDataCharacters(sanitizedInput);
+
+            // Determine if input is valid based on threat level
+            var isValid = detectedThreats.Count == 0;
+
+            return new SanitizationResult
+            {
+                IsValid = isValid,
+                SanitizedInput = sanitizedInput,
+                Warnings = warnings,
+                DetectedThreats = detectedThreats
+            };
+        }
+
+        private string SanitizeTestDataCharacters(string input)
+        {
+            // Remove null bytes and control characters (except newlines and tabs)
+            var sanitized = Regex.Replace(input, @"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "");
+            
+            // Remove any HTML entities that might have been double-encoded
+            sanitized = sanitized
+                .Replace("&amp;", "&")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
+                .Replace("&quot;", "\"")
+                .Replace("&#x27;", "'")
+                .Replace("&#39;", "'");
+
+            return sanitized;
         }
 
         private string EscapeDangerousCharacters(string input)
