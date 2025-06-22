@@ -40,17 +40,17 @@ dotnet run <script_path> <readme_path>
 
 **Bash Script (Line Counter)**:
 ```bash
-dotnet run ../line_counter.sh ../README_line_counter.md
+dotnet run --project Jit/Jit.csproj ./line_counter.sh ./README_line_counter.md
 ```
 
 **Node.js Script (Vowel Counter)**:
 ```bash
-dotnet run ../vowel_counter.js ../README_vowel_counter.md
+dotnet run --project Jit/Jit.csproj ./vowel_counter.js ./README_vowel_counter.md
 ```
 
 **Python Script (Word Reverser)**:
 ```bash
-dotnet run ../word_reverser.py ../README_word_reverser.md
+dotnet run --project Jit/Jit.csproj ./word_reverser.py ./README_word_reverser.md
 ```
 
 ## 🔧 How It Works
