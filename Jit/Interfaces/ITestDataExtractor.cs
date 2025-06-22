@@ -1,9 +1,8 @@
 namespace Interfaces
 {
-    public interface IExtractor
+    public interface ITestDataExtractor
     {
         Task<(string exampleInput, string expectedOutput)> ExtractTestDataAsync(
-            string readmePath, 
             string scriptContent, 
             string scriptFileName);
     }

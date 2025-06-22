@@ -7,7 +7,5 @@ namespace Models
         public string SanitizedExpectedOutput { get; set; } = string.Empty;
         public List<string> Warnings { get; set; } = new List<string>();
         public List<string> DetectedThreats { get; set; } = new List<string>();
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        public string? OriginalInputHash { get; set; }
     }
 } 

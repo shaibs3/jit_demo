@@ -30,10 +30,10 @@ namespace Program
             var (scriptContent, scriptFileName) = await ReadScriptFile(scriptPath);
 
             // Initialize services
-            var (llmClient, dockerService, extractor, validator, sanitizer) = InitializeServices();
+            var (llmClient, dockerService, extractor, validator) = InitializeServices(readmePath);
 
-            // Extract test data from README
-            var (exampleInput, expectedOutput) = await extractor.ExtractTestDataAsync(readmePath, scriptContent, scriptFileName);
+            // Extract test data from the README file
+            var (exampleInput, expectedOutput) = await extractor.ExtractTestDataAsync(scriptContent, scriptFileName);
 
             // Build Docker image with retry logic
             string imageName = await dockerService.BuildDockerImageWithRetry(llmClient, scriptContent, scriptFileName, scriptPath);
@@ -73,16 +73,16 @@ namespace Program
             return (scriptContent, scriptFileName);
         }
 
-        static (OpenAiClient openAiClient, DockerService dockerService, Extractor extractor, Validator validator, InputSanitizer sanitizer) InitializeServices()
+        static (OpenAiClient openAiClient, DockerService dockerService, TestDataExtractor extractor, Validator validator) InitializeServices(string readmePath)
         {
             OpenAiClient openAiClient = new OpenAiClient();
-            ReadmeExtractor readmeExtractor = new ReadmeExtractor(openAiClient);
+            ReadmeExtractor readmeExtractor = new ReadmeExtractor(openAiClient, readmePath);
             DockerService dockerService = new DockerService();
             InputSanitizer sanitizer = new InputSanitizer();
-            Extractor extractor = new Extractor(readmeExtractor, openAiClient, sanitizer);
+            TestDataExtractor testDataExtractor = new TestDataExtractor(readmeExtractor, openAiClient, sanitizer);
             Validator validator = new Validator(openAiClient);
 
-            return (openAiClient, dockerService, extractor, validator, sanitizer);
+            return (openAiClient, dockerService, testDataExtractor, validator);
         }
     }
 }

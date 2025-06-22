@@ -9,7 +9,5 @@ namespace Interfaces
             string expectedOutput, 
             string scriptContent, 
             string scriptFileName);
-        
-        bool ValidateTestOutput(string actualOutput, string expectedOutput);
     }
 } 

@@ -4,13 +4,13 @@ namespace Concrete
 {
     using System.Security;
 
-    public class Extractor : IExtractor
+    public class TestDataExtractor : ITestDataExtractor
     {
         private readonly IReadmeExtractor _readmeExtractor;
         private readonly ILlm _llmClient;
         private readonly IInputSanitizer _sanitizer;
 
-        public Extractor(IReadmeExtractor readmeExtractor, ILlm llmClient, IInputSanitizer sanitizer)
+        public TestDataExtractor(IReadmeExtractor readmeExtractor, ILlm llmClient, IInputSanitizer sanitizer)
         {
             _readmeExtractor = readmeExtractor;
             _llmClient = llmClient;
@@ -18,7 +18,6 @@ namespace Concrete
         }
 
         public async Task<(string exampleInput, string expectedOutput)> ExtractTestDataAsync(
-            string readmePath, 
             string scriptContent, 
             string scriptFileName)
         {
@@ -50,8 +49,8 @@ namespace Concrete
 
             try
             {
-                // First attempt: extract from README
-                var (exampleInput, expectedOutput) = await _readmeExtractor.ExtractExampleAsync(readmePath);
+                // First attempt: extract from README (no path needed)
+                var (exampleInput, expectedOutput) = await _readmeExtractor.ExtractReadmeTestDataAsync();
 
                 // Sanitize extracted test data
                 var testDataSanitization = _sanitizer.SanitizeTestData(exampleInput, expectedOutput);
