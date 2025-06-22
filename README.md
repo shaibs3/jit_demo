@@ -53,6 +53,11 @@ dotnet run --project Jit/Jit.csproj ./vowel_counter.js ./README_vowel_counter.md
 dotnet run --project Jit/Jit.csproj ./word_reverser.py ./README_word_reverser.md
 ```
 
+**Go Script (Character Counter)**:
+```bash
+dotnet run --project Jit/Jit.csproj ./char_counter.go ./README_char_counter.md
+```
+
 ## 🔧 How It Works
 
 ### 1. Script Analysis
