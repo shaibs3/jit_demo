@@ -1,0 +1,22 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1a4fef50_002D3543_002D4932_002D8a6b_002D045088f320a2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ValidatorTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;MSTest::94253A7B-BE3E-434E-B486-97ED04D2FF51::net9.0::Jit.Tests.ValidatorTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=484115c2_002D5e21_002D4bc1_002Dac0d_002Db5399c04617d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ValidateTestOutput_WhenOutputsMatchWithWhitespace_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;MSTest::94253A7B-BE3E-434E-B486-97ED04D2FF51::net9.0::Jit.Tests.ValidatorTests.ValidateTestOutput_WhenOutputsMatchWithWhitespace_ReturnsTrue&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=97624259_002Da899_002D4ae3_002D9381_002De16d61b27aa5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ExtractTestDataAsync_WhenBothReadmeAndLlmFail_ThrowsException" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;MSTest::94253A7B-BE3E-434E-B486-97ED04D2FF51::net9.0::Jit.Tests.ExtractorTests.ExtractTestDataAsync_WhenBothReadmeAndLlmFail_ThrowsException&lt;/TestId&gt;
+    &lt;TestId&gt;MSTest::94253A7B-BE3E-434E-B486-97ED04D2FF51::net9.0::Jit.Tests.WrappingProcessIntegrationTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d6b41678_002D8d4a_002D4948_002Dacd1_002D9c3b82cc05a5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ExtractTestDataAsync_WhenBothReadmeAndLlmFail_ThrowsException #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;MSTest::94253A7B-BE3E-434E-B486-97ED04D2FF51::net9.0::Jit.Tests.ExtractorTests.ExtractTestDataAsync_WhenBothReadmeAndLlmFail_ThrowsException&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
