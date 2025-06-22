@@ -18,12 +18,9 @@ namespace Concrete
 
             if (!File.Exists(readmePath))
                 throw new FileNotFoundException($"README file not found: {readmePath}");
-
-            // Read the README content
-            string readmeContent = await File.ReadAllTextAsync(readmePath);
-
+            
             // Use the LLM client to extract example input and expected output
-            var result = await _llmClient.ExtractExampleFromReadme(readmePath);
+            (string exampleInput, string expectedOutput) result = await _llmClient.ExtractExampleFromReadme(readmePath);
 
             return result;
         }

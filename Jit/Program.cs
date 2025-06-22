@@ -2,6 +2,8 @@ using Concrete;
 
 namespace Program
 {
+    using Jit.Concrete;
+
     class Program
     {
         static async Task Main(string[] args)
@@ -28,7 +30,7 @@ namespace Program
             var (scriptContent, scriptFileName) = await ReadScriptFile(scriptPath);
 
             // Initialize services
-            var (llmClient, _, dockerService, extractor, validator, sanitizer) = InitializeServices();
+            var (llmClient, dockerService, extractor, validator, sanitizer) = InitializeServices();
 
             // Extract test data from README
             var (exampleInput, expectedOutput) = await extractor.ExtractTestDataAsync(readmePath, scriptContent, scriptFileName);
@@ -71,7 +73,7 @@ namespace Program
             return (scriptContent, scriptFileName);
         }
 
-        static (OpenAiClient openAiClient, ReadmeExtractor readmeExtractor, DockerService dockerService, Extractor extractor, Validator validator, InputSanitizer sanitizer) InitializeServices()
+        static (OpenAiClient openAiClient, DockerService dockerService, Extractor extractor, Validator validator, InputSanitizer sanitizer) InitializeServices()
         {
             OpenAiClient openAiClient = new OpenAiClient();
             ReadmeExtractor readmeExtractor = new ReadmeExtractor(openAiClient);
@@ -80,7 +82,7 @@ namespace Program
             Extractor extractor = new Extractor(readmeExtractor, openAiClient, sanitizer);
             Validator validator = new Validator(openAiClient);
 
-            return (openAiClient, readmeExtractor, dockerService, extractor, validator, sanitizer);
+            return (openAiClient, dockerService, extractor, validator, sanitizer);
         }
     }
 }
