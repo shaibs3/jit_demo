@@ -4679,11 +4679,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/sbenshalom/jit/Jit-ai-challenge/Jit/Jit.csproj",
+      "projectUniqueName": "/Users/sbenshalom/jit_demo/Jit/Jit.csproj",
       "projectName": "Jit",
-      "projectPath": "/Users/sbenshalom/jit/Jit-ai-challenge/Jit/Jit.csproj",
+      "projectPath": "/Users/sbenshalom/jit_demo/Jit/Jit.csproj",
       "packagesPath": "/Users/sbenshalom/.nuget/packages/",
-      "outputPath": "/Users/sbenshalom/jit/Jit-ai-challenge/Jit/obj/",
+      "outputPath": "/Users/sbenshalom/jit_demo/Jit/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/sbenshalom/.nuget/NuGet/NuGet.Config"

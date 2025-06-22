@@ -1,1 +1,4 @@
 .env
+.idea
+Jit/bin/*
+Jit/obj/*

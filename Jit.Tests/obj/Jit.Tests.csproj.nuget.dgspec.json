@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/sbenshalom/jit_demo/Jit/Jit.csproj": {}
+    "/Users/sbenshalom/jit_demo/Jit.Tests/Jit.Tests.csproj": {}
   },
   "projects": {
-    "/Users/sbenshalom/jit_demo/Jit/Jit.csproj": {
+    "/Users/sbenshalom/jit_demo/Jit.Tests/Jit.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/sbenshalom/jit_demo/Jit/Jit.csproj",
-        "projectName": "Jit",
-        "projectPath": "/Users/sbenshalom/jit_demo/Jit/Jit.csproj",
+        "projectUniqueName": "/Users/sbenshalom/jit_demo/Jit.Tests/Jit.Tests.csproj",
+        "projectName": "Jit.Tests",
+        "projectPath": "/Users/sbenshalom/jit_demo/Jit.Tests/Jit.Tests.csproj",
         "packagesPath": "/Users/sbenshalom/.nuget/packages/",
-        "outputPath": "/Users/sbenshalom/jit_demo/Jit/obj/",
+        "outputPath": "/Users/sbenshalom/jit_demo/Jit.Tests/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/sbenshalom/.nuget/NuGet/NuGet.Config"
@@ -44,9 +44,13 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "DotNetEnv": {
+            "MSTest": {
               "target": "Package",
-              "version": "[3.1.1, )"
+              "version": "[3.6.4, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.12.0, )"
             }
           },
           "imports": [

@@ -1,12 +1,10 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 using Interfaces;
 
 namespace Concrete
 {
     using System.Text;
+
     public class DockerService : IOci
     {
         public async Task<string> BuildImage(string dockerfileContent, string scriptPath, string scriptFileName)
@@ -80,7 +78,7 @@ namespace Concrete
                 throw;
             }
         }
-        
+
         public async Task<string> RunImage(string imageName, string input)
         {
             var psi = new ProcessStartInfo
@@ -98,8 +96,14 @@ namespace Concrete
             var outputBuilder = new StringBuilder();
             var errorBuilder = new StringBuilder();
 
-            process.OutputDataReceived += (s, e) => { if (e.Data != null) outputBuilder.AppendLine(e.Data); };
-            process.ErrorDataReceived += (s, e) => { if (e.Data != null) errorBuilder.AppendLine(e.Data); };
+            process.OutputDataReceived += (s, e) =>
+            {
+                if (e.Data != null) outputBuilder.AppendLine(e.Data);
+            };
+            process.ErrorDataReceived += (s, e) =>
+            {
+                if (e.Data != null) errorBuilder.AppendLine(e.Data);
+            };
 
             process.Start();
 
@@ -109,6 +113,7 @@ namespace Concrete
                 await process.StandardInput.WriteAsync(input);
                 await process.StandardInput.FlushAsync();
             }
+
             process.StandardInput.Close();
 
             process.BeginOutputReadLine();
@@ -122,6 +127,76 @@ namespace Concrete
             }
 
             return outputBuilder.ToString().Trim();
+        }
+
+        public async Task<string> BuildDockerImageWithRetry(ILlm llmClient, string scriptContent, string scriptFileName, string scriptPath)
+        {
+            string dockerfile = "";
+            int maxRetries = 3;
+            int currentRetry = 0;
+
+            while (currentRetry < maxRetries)
+            {
+                try
+                {
+                    dockerfile = await GenerateOrFixDockerfile(llmClient, scriptContent, scriptFileName, dockerfile, currentRetry);
+
+                    string imageName = await this.BuildImage(dockerfile, scriptPath, scriptFileName);
+                    Console.WriteLine($"🎉 Success! Your script has been Dockerized!");
+                    Console.WriteLine($"🖼️ Image name: {imageName}");
+
+                    return imageName;
+                }
+                catch (Exception ex)
+                {
+                    currentRetry++;
+                    Console.WriteLine($"❌ Docker build failed (attempt {currentRetry}): {ex.Message}");
+
+                    if (currentRetry >= maxRetries)
+                    {
+                        throw new InvalidOperationException($"Failed to build Docker image after {maxRetries} attempts");
+                    }
+
+                    await HandleDockerBuildFailure(llmClient, scriptContent, scriptFileName, dockerfile, ex.Message);
+                }
+            }
+
+            throw new InvalidOperationException("Unexpected error in retry loop");
+        }
+
+        private async Task<string> GenerateOrFixDockerfile(ILlm llmClient, string scriptContent, string scriptFileName, string existingDockerfile, int currentRetry)
+        {
+            if (currentRetry == 0)
+            {
+                // First attempt: generate new Dockerfile
+                var dockerfile = await llmClient.CreateDockerFile(scriptContent, scriptFileName);
+                Console.WriteLine($"Generated Dockerfile (attempt {currentRetry + 1}):");
+                Console.WriteLine(dockerfile);
+                return dockerfile;
+            }
+            else
+            {
+                // Retry: fix existing Dockerfile
+                Console.WriteLine($"Attempting to fix Dockerfile (attempt {currentRetry + 1}):");
+                var fixedDockerfile = await llmClient.FixDockerFile(scriptContent, scriptFileName, existingDockerfile, "");
+                Console.WriteLine(fixedDockerfile);
+                return fixedDockerfile;
+            }
+        }
+
+        private async Task HandleDockerBuildFailure(ILlm llmClient, string scriptContent,
+            string scriptFileName, string dockerfile, string errorMessage)
+        {
+            Console.WriteLine("🔄 Asking AI to fix the Dockerfile...");
+
+            try
+            {
+                await llmClient.FixDockerFile(scriptContent, scriptFileName, dockerfile, errorMessage);
+            }
+            catch (Exception fixEx)
+            {
+                throw new InvalidOperationException($"Failed to get fixed Dockerfile: {fixEx.Message}", fixEx);
+            }
         }
     }
 }
